@@ -1,0 +1,24 @@
+name: EXE_Generator
+
+on: [push] # コードを保存(Push)するたびに自動実行
+
+jobs:
+  build:
+    runs-on: windows-latest # Windowsのサーバーを借りる
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # 最新の.NET 8を使用
+
+      - name: Build EXE
+        # 1つのexeにまとめ、不要なデータを削って軽量化する魔法のオプション
+        run: dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:PublishTrimmed=true
+
+      - name: Save EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyApp-Windows # ダウンロード時の名前
+          path: bin/Release/net*/win-x64/publish/*.exe # できたexeの場所
